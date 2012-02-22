@@ -7,7 +7,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.webkit.WebView;
-import android.widget.Toast;
 
 import com.eink.parser.FeedParser;
 import com.eink.parser.FeedParserFactory;
@@ -34,11 +33,10 @@ public class NewsListActivity extends Activity {
 		// Update the screen
 		processFeedTask = new ProcessFeedTask();
 		processFeedTask.execute(feedUrl);
-		
+
 		Log.d(TAG, "onCreated");
 	}
-	
-	
+
 	/** AsyncTask for downloading and parsing the feed. */
 	private class ProcessFeedTask extends AsyncTask<String, Void, String> {
 
@@ -59,8 +57,8 @@ public class NewsListActivity extends Activity {
 				for (Post post : posts) {
 					desc = post.getDescription();
 					// ellipsis
-					if(desc.length()>MAX_LENGTH) {
-						desc = desc.substring(0, MAX_LENGTH-3)+"...";
+					if (desc.length() > MAX_LENGTH) {
+						desc = desc.substring(0, MAX_LENGTH - 3) + "...";
 					}
 					// Create html output
 					content.append(String.format(
@@ -68,13 +66,11 @@ public class NewsListActivity extends Activity {
 							post.getLink(), post.getTitle(), desc));
 				}
 
-				// Update output
-				output.loadData(content.toString(), "text/html", "utf-8");
-				
-				return "Success";
+				return content.toString();
 
 			} catch (Exception e) {
-				String message = "Problems parsing the feed: " + feedUrls[0];
+				String message = "<strong>Problems parsing the feed: "
+						+ feedUrls[0] + "</strong>";
 				Log.e(TAG, message, e);
 				return message;
 			}
@@ -82,11 +78,13 @@ public class NewsListActivity extends Activity {
 
 		/** Executed on UI thread after background job is completed. */
 		@Override
-		protected void onPostExecute(String result) {
-			super.onPostExecute(result);
-			Toast.makeText(getApplication(), result, Toast.LENGTH_LONG).show();
+		protected void onPostExecute(String content) {
+			super.onPostExecute(content);
+
+			// Update output
+			output.loadData(content, "text/html", "utf-8");
 		}
-		
+
 	}
-	
+
 }
