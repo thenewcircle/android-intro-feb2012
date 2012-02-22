@@ -2,4 +2,7 @@
 <resources>
     <string name="hello">Hello World, NewsListActivity!</string>
     <string name="app_name">NewsReader</string>
+    <string name="feed_url">Feed URL</string>
+    <string name="feed_url_summary">What RSS feed to use?</string>
+    <string name="preferences">Preferences</string>
 </resources>
