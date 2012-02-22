@@ -4,12 +4,15 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebView;
+import android.widget.Toast;
 
 import com.eink.parser.FeedParser;
 import com.eink.parser.FeedParserFactory;
@@ -18,11 +21,11 @@ import com.eink.parser.Post;
 public class NewsListActivity extends Activity {
 	static final String TAG = "NewsListActivity";
 	static final int MAX_LENGTH = 250;
-	String feedUrl = "http://marakana.com/s/feed.rss";
 	WebView output;
 	FeedParser parser;
 	List<Post> posts;
 	ProcessFeedTask processFeedTask;
+	SharedPreferences prefs;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -33,16 +36,34 @@ public class NewsListActivity extends Activity {
 		// Find views
 		output = (WebView) findViewById(R.id.output);
 
-		// Update the screen
-		processFeedTask = new ProcessFeedTask();
-		processFeedTask.execute(feedUrl);
+		// Get the preferences
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
 		Log.d(TAG, "onCreated");
 	}
 
 	
-	// -- Menu Callbacks ---
 	
+	// -- Menu Callbacks ---
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		// Update the screen
+		String feedUrl = prefs.getString("feedUrl", null);
+		if (feedUrl == null) {
+			// Bounce user to Prefs activity
+			Toast.makeText(this, "Please enter Feed URL", Toast.LENGTH_LONG).show();
+			startActivity( new Intent(this, PrefsActivity.class) );
+		} else {
+			// Load the data and update the screen
+			processFeedTask = new ProcessFeedTask();
+			processFeedTask.execute(feedUrl);
+		}	
+	}
+
+
+
 	/** Called first time menu button is pressed. */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -52,17 +73,13 @@ public class NewsListActivity extends Activity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch( item.getItemId() ) {
+		switch (item.getItemId()) {
 		case R.id.item_prefs:
-			startActivity( new Intent(this, PrefsActivity.class) );
+			startActivity(new Intent(this, PrefsActivity.class));
 			return true;
 		}
 		return false;
 	}
-
-
-
-
 
 	/** AsyncTask for downloading and parsing the feed. */
 	private class ProcessFeedTask extends AsyncTask<String, Void, String> {
