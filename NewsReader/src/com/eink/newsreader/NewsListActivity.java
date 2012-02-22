@@ -3,9 +3,12 @@ package com.eink.newsreader;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.webkit.WebView;
 
 import com.eink.parser.FeedParser;
@@ -36,6 +39,30 @@ public class NewsListActivity extends Activity {
 
 		Log.d(TAG, "onCreated");
 	}
+
+	
+	// -- Menu Callbacks ---
+	
+	/** Called first time menu button is pressed. */
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch( item.getItemId() ) {
+		case R.id.item_prefs:
+			startActivity( new Intent(this, PrefsActivity.class) );
+			return true;
+		}
+		return false;
+	}
+
+
+
+
 
 	/** AsyncTask for downloading and parsing the feed. */
 	private class ProcessFeedTask extends AsyncTask<String, Void, String> {
