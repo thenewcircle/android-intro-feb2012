@@ -3,6 +3,7 @@ package com.eink.newsreader;
 import java.util.List;
 
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.webkit.WebView;
@@ -19,6 +20,7 @@ public class NewsListActivity extends Activity {
 	WebView output;
 	FeedParser parser;
 	List<Post> posts;
+	ProcessFeedTask processFeedTask;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -29,38 +31,62 @@ public class NewsListActivity extends Activity {
 		// Find views
 		output = (WebView) findViewById(R.id.output);
 
-		// Initialize parser
-		parser = FeedParserFactory.getParser(feedUrl);
-
-		try {
-			StringBuffer content = new StringBuffer();
-
-			// Get the posts
-			posts = parser.parse();
-
-			String desc;
-			// Iterate over posts
-			for (Post post : posts) {
-				desc = post.getDescription();
-				// ellipsis
-				if(desc.length()>MAX_LENGTH) {
-					desc = desc.substring(0, MAX_LENGTH-3)+"...";
-				}
-				// Create html output
-				content.append(String.format(
-						"<a href=%s><h2>%s</h2></a>\n%s\n<hr/>",
-						post.getLink(), post.getTitle(), desc));
-			}
-
-			// Update output
-			output.loadData(content.toString(), "text/html", "utf-8");
-
-		} catch (Exception e) {
-			String message = "Problems parsing the feed: " + feedUrl;
-			Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-			Log.e(TAG, message, e);
-		}
-
+		// Update the screen
+		processFeedTask = new ProcessFeedTask();
+		processFeedTask.execute(feedUrl);
+		
 		Log.d(TAG, "onCreated");
 	}
+	
+	
+	/** AsyncTask for downloading and parsing the feed. */
+	private class ProcessFeedTask extends AsyncTask<String, Void, String> {
+
+		/** Work to be done on a separate (non-UI) thread. */
+		@Override
+		protected String doInBackground(String... feedUrls) {
+			// Initialize parser
+			parser = FeedParserFactory.getParser(feedUrls[0]);
+
+			try {
+				StringBuffer content = new StringBuffer();
+
+				// Get the posts
+				posts = parser.parse();
+
+				String desc;
+				// Iterate over posts
+				for (Post post : posts) {
+					desc = post.getDescription();
+					// ellipsis
+					if(desc.length()>MAX_LENGTH) {
+						desc = desc.substring(0, MAX_LENGTH-3)+"...";
+					}
+					// Create html output
+					content.append(String.format(
+							"<a href=%s><h2>%s</h2></a>\n%s\n<hr/>",
+							post.getLink(), post.getTitle(), desc));
+				}
+
+				// Update output
+				output.loadData(content.toString(), "text/html", "utf-8");
+				
+				return "Success";
+
+			} catch (Exception e) {
+				String message = "Problems parsing the feed: " + feedUrls[0];
+				Log.e(TAG, message, e);
+				return message;
+			}
+		}
+
+		/** Executed on UI thread after background job is completed. */
+		@Override
+		protected void onPostExecute(String result) {
+			super.onPostExecute(result);
+			Toast.makeText(getApplication(), result, Toast.LENGTH_LONG).show();
+		}
+		
+	}
+	
 }
