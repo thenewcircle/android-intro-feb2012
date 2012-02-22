@@ -11,8 +11,9 @@
         android:text="@string/app_name"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <TextView
-        android:id="@+id/text_output"
+    <WebView
+        android:id="@+id/output"
+        android:autoLink="all"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:textAppearance="?android:attr/textAppearanceMedium" />
