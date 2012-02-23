@@ -56,7 +56,7 @@ public class NewsListActivity extends Activity {
 	private void refresh() {
 		// Update the screen
 		String feedUrl = prefs.getString("feedUrl", null);
-		if (feedUrl == null && "".equals(feedUrl) ) {
+		if (feedUrl == null || "".equals(feedUrl) ) {
 			// Bounce user to Prefs activity
 			Toast.makeText(this, "Please enter Feed URL", Toast.LENGTH_LONG).show();
 			startActivity( new Intent(this, PrefsActivity.class) );
