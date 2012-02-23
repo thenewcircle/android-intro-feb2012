@@ -1,7 +1,10 @@
 package com.eink.newsreader;
 
 import android.app.ListActivity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -24,6 +27,7 @@ public class NewsListActivity extends ListActivity {
 	DbHelper dbHelper;
 	Cursor cursor;
 	SimpleCursorAdapter adapter;
+	NewPostReceiver receiver;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -38,6 +42,8 @@ public class NewsListActivity extends ListActivity {
 		adapter.setViewBinder(VIEW_BINDER);
 		setListAdapter(adapter);
 
+		receiver = new NewPostReceiver();
+
 		Log.d(TAG, "onCreated");
 	}
 
@@ -45,7 +51,17 @@ public class NewsListActivity extends ListActivity {
 	protected void onResume() {
 		super.onResume();
 		refresh();
+
+		registerReceiver(receiver, new IntentFilter(
+				RefreshService.EINK_NEW_POSTS_ACTION) );
+
 		Log.d(TAG, "onResumed");
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		unregisterReceiver(receiver);
 	}
 
 	private void refresh() {
@@ -99,7 +115,7 @@ public class NewsListActivity extends ListActivity {
 		public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
 			if (view.getId() == R.id.post_desc) {
 				String desc = cursor.getString(columnIndex);
-				( (TextView)view ).setText( Html.fromHtml(desc) );
+				((TextView) view).setText(Html.fromHtml(desc));
 				return true;
 			} else {
 				return false;
@@ -107,19 +123,13 @@ public class NewsListActivity extends ListActivity {
 		}
 
 	};
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
+	private class NewPostReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			refresh();
+		}
+	}
+
 }

@@ -17,6 +17,7 @@ import com.eink.parser.Post;
  */
 public class RefreshService extends IntentService {
 	static final String TAG = "RefreshService";
+	static final String EINK_NEW_POSTS_ACTION = "com.eink.action.NEW_POSTS";
 
 	DbHelper dbHelper;
 
@@ -33,7 +34,8 @@ public class RefreshService extends IntentService {
 	 * @param intent Intent that started this service. */
 	@Override
 	protected void onHandleIntent(Intent intent) {
-
+		boolean newPosts = false;
+		
 		// Get the feed URL
 		String feedUrl = PreferenceManager.getDefaultSharedPreferences(this)
 				.getString("feedUrl", null);
@@ -50,8 +52,14 @@ public class RefreshService extends IntentService {
 
 			// Iterate over posts
 			for (Post post : posts) {
-				db.insert(DbHelper.TABLE, null, DbHelper.postToValues(post));
+				if( db.insert(DbHelper.TABLE, null, DbHelper.postToValues(post)) != -1) {
+					newPosts = true;
+				}
 				Log.d(TAG, post.getTitle());
+			}
+			
+			if( newPosts ) {
+				sendBroadcast( new Intent(EINK_NEW_POSTS_ACTION) );
 			}
 
 		} catch (Exception e) {
