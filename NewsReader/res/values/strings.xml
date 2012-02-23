@@ -5,4 +5,5 @@
     <string name="feed_url">Feed URL</string>
     <string name="feed_url_summary">What RSS feed to use?</string>
     <string name="preferences">Preferences</string>
+    <string name="refresh">Refresh</string>
 </resources>

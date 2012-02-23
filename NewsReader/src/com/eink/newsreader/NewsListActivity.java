@@ -49,9 +49,14 @@ public class NewsListActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		refresh();
+		Log.d(TAG, "onResumed");
+	}
+
+	private void refresh() {
 		// Update the screen
 		String feedUrl = prefs.getString("feedUrl", null);
-		if (feedUrl == null) {
+		if (feedUrl == null && "".equals(feedUrl) ) {
 			// Bounce user to Prefs activity
 			Toast.makeText(this, "Please enter Feed URL", Toast.LENGTH_LONG).show();
 			startActivity( new Intent(this, PrefsActivity.class) );
@@ -59,9 +64,9 @@ public class NewsListActivity extends Activity {
 			// Load the data and update the screen
 			processFeedTask = new ProcessFeedTask();
 			processFeedTask.execute(feedUrl);
-		}	
+			Log.d(TAG, "Refreshing...");
+		}		
 	}
-
 
 
 	/** Called first time menu button is pressed. */
@@ -76,6 +81,9 @@ public class NewsListActivity extends Activity {
 		switch (item.getItemId()) {
 		case R.id.item_prefs:
 			startActivity(new Intent(this, PrefsActivity.class));
+			return true;
+		case R.id.item_refresh:
+			refresh();
 			return true;
 		}
 		return false;
