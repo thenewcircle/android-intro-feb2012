@@ -12,6 +12,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	static final String TAG = "DbHelper";
 	static final String DB_NAME = "news.db";
 	static final int DB_VERSION = 1;
+	static final String TABLE = "posts";
 	static final String C_ID = "_id";
 	static final String C_TITLE = "title";
 	static final String C_LINK = "link";
@@ -26,25 +27,22 @@ public class DbHelper extends SQLiteOpenHelper {
 	/** Called only once, fist time user installs the app. */
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		String sql = String
-				.format("CREATE TABLE posts (" +
-						"%s int primary key, " +
-						"%s text, %s text, " +
-						"%s text, %s text)",
-						C_ID, C_TITLE, C_LINK, C_DESC, C_DATE);
-		Log.d(TAG, "onCreate sql: "+sql);
+		String sql = String.format("CREATE TABLE %s (" + "%s int primary key, "
+				+ "%s text, %s text, " + "%s text, %s text)", TABLE, C_ID,
+				C_TITLE, C_LINK, C_DESC, C_DATE);
+		Log.d(TAG, "onCreate sql: " + sql);
 		db.execSQL(sql);
 	}
 
 	/** Called every time db version changes. */
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL("drop table if exists posts");
+		db.execSQL("drop table if exists "+TABLE);
 		onCreate(db);
 	}
 
 	/** Helper function to convert Post to ContentValues. */
-	public ContentValues postToValues(Post post) {
+	public static ContentValues postToValues(Post post) {
 		ContentValues values = new ContentValues();
 		values.put(C_ID, post.hashCode());
 		values.put(C_TITLE, post.getTitle());
