@@ -83,7 +83,7 @@ public class NewsListActivity extends Activity {
 			startActivity(new Intent(this, PrefsActivity.class));
 			return true;
 		case R.id.item_refresh:
-			refresh();
+			startService( new Intent(this, RefreshService.class));
 			return true;
 		}
 		return false;
