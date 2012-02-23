@@ -12,11 +12,15 @@ import com.eink.parser.FeedParser;
 import com.eink.parser.FeedParserFactory;
 import com.eink.parser.Post;
 
+/** Responsible for pulling the data from the cloud. 
+ * @author Marko Gargenta
+ */
 public class RefreshService extends IntentService {
 	static final String TAG = "RefreshService";
 
 	DbHelper dbHelper;
 
+	/** Default constructor. */
 	public RefreshService() {
 		super(TAG);
 
@@ -25,7 +29,8 @@ public class RefreshService extends IntentService {
 		Log.d(TAG, "constructred");
 	}
 
-	/** Executed on a separate worker thread. */
+	/** Executed on a separate worker thread.
+	 * @param intent Intent that started this service. */
 	@Override
 	protected void onHandleIntent(Intent intent) {
 
@@ -38,11 +43,10 @@ public class RefreshService extends IntentService {
 		// Initialize parser
 		FeedParser parser = FeedParserFactory.getParser(feedUrl);
 
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		try {
 			// Get the posts
 			List<Post> posts = parser.parse();
-
-			SQLiteDatabase db = dbHelper.getWritableDatabase();
 
 			// Iterate over posts
 			for (Post post : posts) {
@@ -53,6 +57,8 @@ public class RefreshService extends IntentService {
 		} catch (Exception e) {
 			Log.e(TAG, "Problems loading the feed: " + feedUrl, e);
 		}
+		db.close();
+		
 		Log.d(TAG, "onHandleIntent");
 	}
 
