@@ -5,10 +5,14 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.SimpleCursorAdapter;
+import android.widget.SimpleCursorAdapter.ViewBinder;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class NewsListActivity extends ListActivity {
@@ -31,7 +35,7 @@ public class NewsListActivity extends ListActivity {
 
 		// Setup the adapter
 		adapter = new SimpleCursorAdapter(this, R.layout.post, null, FROM, TO);
-
+		adapter.setViewBinder(VIEW_BINDER);
 		setListAdapter(adapter);
 
 		Log.d(TAG, "onCreated");
@@ -89,4 +93,33 @@ public class NewsListActivity extends ListActivity {
 		return false;
 	}
 
+	/** View binder to help us deal with WebView. */
+	static final ViewBinder VIEW_BINDER = new ViewBinder() {
+
+		public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+			if (view.getId() == R.id.post_desc) {
+				String desc = cursor.getString(columnIndex);
+				( (TextView)view ).setText( Html.fromHtml(desc) );
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+	};
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }
